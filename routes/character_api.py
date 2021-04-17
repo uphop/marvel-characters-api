@@ -23,7 +23,7 @@ def get_characters():
     flask/response object with application/json mimetype.
     """
     # Retrieve characters from data store
-    characters = []
+    characters = character_service.get_characters()
     # TODO: integrate with Marvel API
     
     # HTTP 404 Not Found
