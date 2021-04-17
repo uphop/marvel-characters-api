@@ -1,0 +1,11 @@
+.git
+.gitignore
+*Dockerfile
+docker-compose*
+README.md
+LICENSE
+.vscode
+tests
+venv
+.sample_env
+*.sh
