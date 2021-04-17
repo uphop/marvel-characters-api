@@ -16,6 +16,9 @@ def get_blueprint():
 # Init char service
 character_service = CharacterService()
 
+# run initial sync
+character_service.sync()
+
 @character_api.route('/character', methods=['GET'])
 def get_characters():
     """Return all characters
@@ -24,10 +27,27 @@ def get_characters():
     """
     # Retrieve characters from data store
     characters = character_service.get_characters()
-    # TODO: integrate with Marvel API
     
     # HTTP 404 Not Found
     if characters is None:
         abort(404)
 
     return jsonify(characters)
+
+@character_api.route('/character/<string:_character_id>', methods=['GET'])
+def get_character_by_id(_character_id):
+    """Return character by ID.
+    @param _character_id: character's identifier
+    @return: 200: a character as \
+    flask/response object with application/json mimetype.
+    @raise 400: missing required parameter
+    @raise 404: if character is not found
+    """
+    # Retrieve character from data store
+    character = character_service.get_character_by_id(_character_id)
+    
+    # HTTP 404 Not Found
+    if character is None:
+        abort(404)
+
+    return jsonify(character)

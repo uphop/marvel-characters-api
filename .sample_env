@@ -4,6 +4,9 @@ FLASK_APP_HOST=0.0.0.0
 FLASK_APP_PORT=5000
 FLASK_APP_DEBUG=False
 
+[DATA]
+CHARACTER_DATASTORE_CONNECTION_STRING=sqlite:///data//datastores/local.sqlite3?check_same_thread=False
+
 [MARVEL]
 MARVEK_API_BASE_URL=http://gateway.marvel.com/v1/public
 MARVEL_API_PUBLIC_KEY=

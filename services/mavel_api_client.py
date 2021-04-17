@@ -18,12 +18,11 @@ class MarvelApiClient:
         self.base_url = os.environ.get('MARVEK_API_BASE_URL', 'http://gateway.marvel.com/v1/public')
         self.public_key = os.environ.get('MARVEL_API_PUBLIC_KEY')
         self.private_key = os.environ.get('MARVEL_API_PRIVATE_KEY')
-        self.limit = os.environ.get('MARVEL_API_LIMIT', '100')
 
     '''
     Retrieves all characters from Marvel.
     '''
-    def get_character_chunk(self, offset=0):
+    def get_character_chunk(self, offset, limit):
         logger.debug('Getting characters from Marvel API.')
 
         # get request signature
@@ -38,7 +37,7 @@ class MarvelApiClient:
             'apikey': self.public_key,
             'hash': signature,
             'offset': str(offset),
-            'limit': self.limit
+            'limit': str(limit)
         }
         logger.debug(f'API params: {params}')
 
@@ -57,34 +56,7 @@ class MarvelApiClient:
             raise SystemExit(f'Request to Marvel API failed, empty response body.')
 
         results = response.json()
-        # logger.debug(f'API response body: {results}')
-
         return results
-
-
-    def get_characters(self):
-        results = []
-        offset = 1300
-        limit = 100
-
-        while True:
-            chunk = self.get_character_chunk(offset)
-            data = chunk['data']
-
-            offset = int(data['offset'])
-            total = int(data['total'])
-            count = int(data['count'])
-            remaining = total - offset - count
-            logger.debug(f'offset {offset}, total {total}, count {count}, remaining {remaining}')
-
-            if remaining == 0:
-                break
-
-            offset += limit
-
-
-        return chunk
-
 
     '''
     Signs API requests with a combination of timestamp / keys.
