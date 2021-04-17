@@ -20,15 +20,14 @@ class MarvelApiClient:
         self.private_key = os.environ.get('MARVEL_API_PRIVATE_KEY')
         self.limit = os.environ.get('MARVEL_API_LIMIT', '100')
 
-    def get_characters(self):
-        """Return all characters
-        """
+    '''
+    Retrieves all characters from Marvel.
+    '''
+    def get_character_chunk(self, offset=0):
         logger.debug('Getting characters from Marvel API.')
 
         # get request signature
         ts, signature = self.get_signature()
-        if not ts or not signature:
-            raise AttributeError('Failed to generate API request signature, please check environment configuration.')
 
         # prepare request
         request_url = f'{self.base_url}/characters'
@@ -38,6 +37,7 @@ class MarvelApiClient:
             'ts': ts, 
             'apikey': self.public_key,
             'hash': signature,
+            'offset': str(offset),
             'limit': self.limit
         }
         logger.debug(f'API params: {params}')
@@ -57,9 +57,34 @@ class MarvelApiClient:
             raise SystemExit(f'Request to Marvel API failed, empty response body.')
 
         results = response.json()
-        logger.debug(f'API response body: {results}')
+        # logger.debug(f'API response body: {results}')
 
         return results
+
+
+    def get_characters(self):
+        results = []
+        offset = 1300
+        limit = 100
+
+        while True:
+            chunk = self.get_character_chunk(offset)
+            data = chunk['data']
+
+            offset = int(data['offset'])
+            total = int(data['total'])
+            count = int(data['count'])
+            remaining = total - offset - count
+            logger.debug(f'offset {offset}, total {total}, count {count}, remaining {remaining}')
+
+            if remaining == 0:
+                break
+
+            offset += limit
+
+
+        return chunk
+
 
     '''
     Signs API requests with a combination of timestamp / keys.
@@ -67,6 +92,13 @@ class MarvelApiClient:
     def get_signature(self):
         # get current timestamp
         ts = time.time()
+
+        # check keys
+        if not self.private_key or len(self.private_key) == 0:
+            raise AttributeError('Failed to generate API request signature, please check private key in environment configuration.')
+        
+        if not self.public_key or len(self.public_key) == 0:
+            raise AttributeError('Failed to generate API request signature, please check public key in environment configuration.')
 
         # concat timestamp and keys as hashing input, and hash to MD5
         hash_input = str(ts) + self.private_key + self.public_key
