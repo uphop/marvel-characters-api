@@ -2,7 +2,7 @@
 FROM python:3.7.10-slim-buster
 
 # Prepare app folder
-WORKDIR /
+WORKDIR /app
 
 # Change back to root user to install dependencies
 USER root

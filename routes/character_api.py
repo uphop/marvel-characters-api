@@ -43,8 +43,11 @@ def get_character_by_id(_character_id):
     @raise 400: missing required parameter
     @raise 404: if character is not found
     """
+    # Check if target langage code is passed
+    target_language_code = request.args.get('language')
+
     # Retrieve character from data store
-    character = character_service.get_character_by_id(_character_id)
+    character = character_service.get_character_by_id(_character_id, target_language_code)
     
     # HTTP 404 Not Found
     if character is None:
