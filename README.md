@@ -25,6 +25,11 @@ Please update the folling parameters in `.env`:
 * AWS_ACCESS_KEY_ID: AWS access key ID, can be obtained from AWS Console, IAM service
 * AWS_SECRET_ACCESS_KEY: AWS secret key, can be obtained from AWS Console, IAM service
 
+Create Docker volume:
+```
+docker volume create marvel-character-data
+```
+
 Build Docker image:
 ```
 docker build --tag marvel-character-api .
@@ -33,7 +38,7 @@ docker build --tag marvel-character-api .
 ## Running
 Start Docker container:
 ```
-docker run --publish 8080:8080 marvel-character-api -d
+docker run --mount source=marvel-character-data,destination=/app --publish 8080:8080 -d marvel-character-api
 ```
 
 ## Testing
