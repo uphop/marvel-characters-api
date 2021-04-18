@@ -16,7 +16,7 @@ API supports in-flight translation of character's description, using [AWS Transl
 ## Pre-requisites
 Create configuration file based on provided example:
 ```
-cd .sample_env .env
+cp .sample_env .env
 ```
 
 Please update the folling parameters in `.env`:
