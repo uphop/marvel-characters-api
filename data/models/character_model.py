@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, Table, Sequence
+from sqlalchemy import Column, String, Table, DateTime
 from sqlalchemy.orm import relationship, backref
 from data.models.meta import Base
 
@@ -7,7 +7,7 @@ class Character(Base):
     id = Column(String, primary_key=True)
     name = Column(String)
     description = Column(String)
-    modified = Column(String)
+    modified = Column(DateTime)
     thumbnail_path = Column(String)
     thumbnail_extension = Column(String)
 

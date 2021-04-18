@@ -22,7 +22,7 @@ class MarvelApiClient:
     '''
     Retrieves all characters from Marvel.
     '''
-    def get_character_chunk(self, offset, limit):
+    def get_character_chunk(self, offset, limit, modified_since):
         logger.debug('Getting characters from Marvel API.')
 
         # get request signature
@@ -37,7 +37,8 @@ class MarvelApiClient:
             'apikey': self.public_key,
             'hash': signature,
             'offset': str(offset),
-            'limit': str(limit)
+            'limit': str(limit),
+            'modifiedSince': modified_since
         }
         logger.debug(f'API params: {params}')
 

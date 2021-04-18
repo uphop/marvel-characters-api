@@ -24,9 +24,17 @@ def get_characters():
     """Return all characters
     @return: 200: an array of all characters as a \
     flask/response object with application/json mimetype.
+    @raise 404: Characters are not ready to serve yet.
+    @raise 500: Internal server error.
     """
-    # Retrieve characters from data store
-    characters = character_service.get_characters()
+
+    characters = None
+    try:
+        # Retrieve characters from data store
+        characters = character_service.get_characters()
+    except Exception as err:
+        logger.error(err)
+        abort(500)
     
     # HTTP 404 Not Found
     if characters is None:
@@ -34,23 +42,32 @@ def get_characters():
 
     return jsonify(characters)
 
+
 @character_api.route('/character/<string:_character_id>', methods=['GET'])
 def get_character_by_id(_character_id):
     """Return character by ID.
     @param _character_id: character's identifier
     @return: 200: a character as \
     flask/response object with application/json mimetype.
-    @raise 400: missing required parameter
     @raise 404: if character is not found
+    @raise 500: Internal server error.
     """
     # Check if target langage code is passed
     target_language_code = request.args.get('language')
 
-    # Retrieve character from data store
-    character = character_service.get_character_by_id(_character_id, target_language_code)
-    
+    character = None
+    try:
+        # Retrieve character from data store
+        character = character_service.get_character_by_id(_character_id, target_language_code)
+    except Exception as err:
+        logger.error(err)
+        abort(500)
+
     # HTTP 404 Not Found
     if character is None:
         abort(404)
 
     return jsonify(character)
+
+
+   

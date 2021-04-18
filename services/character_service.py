@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from dotenv import load_dotenv
 import logging
 from services.mavel_api_client import MarvelApiClient
@@ -55,9 +56,10 @@ class CharacterService:
         logger.debug('Synching characters...')
         
         # check if characters already synced
-        characters = self.data_store.get_characters()
-        if len(characters) > 0:
-            return
+        modified_start_of_time = '1901-01-01T00:00:00-0000'
+        character_last_modified = self.data_store.get_character_last_modified()
+        modified_since = character_last_modified.modified if not character_last_modified is None else modified_start_of_time
+        logger.debug(f'Characters modified since: {modified_since}')
 
         # init chunk 
         offset = 0
@@ -66,19 +68,40 @@ class CharacterService:
         # get chunks of characters in a loop
         while True:
             # get next character chunk
-            chunk = self.marvel_api.get_character_chunk(offset=offset, limit=limit)
+            chunk = self.marvel_api.get_character_chunk(offset=offset, limit=limit, modified_since=modified_since)
 
             # iterate through the chunk and add characters to data store
             data = chunk['data']
             characters = data['results']
+
+            # some modifed values returned from Marvel are of incorrect format
+            # assumed the date/time can be set to the start of time
+            modified_invalid_format = '-0001-11-30T00:00:00-0500'
+            
             for character in characters:
-                self.data_store.create_character(
-                    id=character['id'], 
-                    name=character['name'], 
-                    description=character['description'], 
-                    modified=character['modified'], 
-                    thumbnail_path=character['thumbnail']['path'],
-                    thumbnail_extension=character['thumbnail']['extension'])
+                try:
+                    # check if character already exists
+                    existing_character = self.data_store.get_character_by_id(character['id'])
+                    if not existing_character is None:
+                        # update existing character
+                        self.data_store.update_character(
+                            id=character['id'], 
+                            name=character['name'], 
+                            description=character['description'], 
+                            modified=datetime.strptime(character['modified'].replace(modified_invalid_format, modified_start_of_time), '%Y-%m-%dT%H:%M:%S%z'),
+                            thumbnail_path=character['thumbnail']['path'],
+                            thumbnail_extension=character['thumbnail']['extension'])
+                    else:
+                        # add character to data store
+                        self.data_store.create_character(
+                            id=character['id'], 
+                            name=character['name'], 
+                            description=character['description'], 
+                            modified=datetime.strptime(character['modified'].replace(modified_invalid_format, modified_start_of_time), '%Y-%m-%dT%H:%M:%S%z'),
+                            thumbnail_path=character['thumbnail']['path'],
+                            thumbnail_extension=character['thumbnail']['extension'])
+                except Exception as err:
+                    logger.error('Failed to load character: ' + str(err))
 
             # target next chunk
             offset = int(data['offset'])

@@ -18,6 +18,7 @@ class AwsTranslateApiClient:
     '''
     def translate(self, source_language_code, target_language_code, text):
         logger.debug(f'Translating text: {text}')
+ 
         translate = boto3.client(service_name='translate', region_name=self.aws_region, use_ssl=True)
         result = translate.translate_text(
             Text=text, 

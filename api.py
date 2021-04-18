@@ -42,25 +42,10 @@ api.register_blueprint(SWAGGERUI_BLUEPRINT, url_prefix=SWAGGER_URL)
 api.register_blueprint(character_api.get_blueprint())
 
 # Default error handlers
-@api.errorhandler(400)
-def handle_400_error(_error):
-    """Return a http 400 error to client"""
-    return make_response(jsonify({'error': 'Misunderstood'}), 400)
-
-@api.errorhandler(401)
-def handle_401_error(_error):
-    """Return a http 401 error to client"""
-    return make_response(jsonify({'error': 'Unauthorised'}), 401)
-
 @api.errorhandler(404)
 def handle_404_error(_error):
     """Return a http 404 error to client"""
     return make_response(jsonify({'error': 'Not found'}), 404)
-
-@api.errorhandler(409)
-def handle_409_error(_error):
-    """Return a http 409 error to client"""
-    return make_response(jsonify({'error': 'Conflict'}), 409)
 
 @api.errorhandler(500)
 def handle_500_error(_error):
@@ -71,7 +56,7 @@ def handle_500_error(_error):
 if __name__ == '__main__':
     # get Flask server config
     FLASK_APP_HOST = os.environ.get('FLASK_APP_HOST', '0.0.0.0')
-    FLASK_APP_PORT = int(os.environ.get('FLASK_APP_PORT', 5000))
+    FLASK_APP_PORT = int(os.environ.get('FLASK_APP_PORT', 8080))
     FLASK_APP_DEBUG = eval(os.environ.get('FLASK_APP_DEBUG', 'False'))
 
     # ...and launch
